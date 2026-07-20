@@ -25,6 +25,15 @@ app.use('/api/posts', postRoutes);
 app.get('/', (req, res) => {
   res.json({ message: '🚀 Post Composer API is running!' });
 });
+const path = require('path');
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, './client/dist')));
+
+// Handle any requests that don't match the ones above
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './client/dist/index.html'));
+});
 
 // Start server
 const PORT = process.env.PORT || 5000;

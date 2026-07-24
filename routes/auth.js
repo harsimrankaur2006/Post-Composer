@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -16,6 +17,9 @@ router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Log mongoose connection state for debugging
+    console.log('Mongoose readyState:', mongoose.connection.readyState);
+
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
@@ -31,6 +35,7 @@ router.post('/register', async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -55,6 +60,7 @@ router.post('/login', async (req, res) => {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: error.message });
   }
 });

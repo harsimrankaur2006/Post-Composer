@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+mongoose.set('debug', true);
 const cors = require('cors');
 require('dotenv').config();
 
@@ -12,10 +13,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
+// Connect to MongoDB Atlas with explicit options and connection event logging
+const mongooseOptions = {
+  serverSelectionTimeoutMS: 10000, // 10s
+};
+
+mongoose.connect(process.env.MONGO_URI, mongooseOptions)
   .then(() => console.log('🌱 Connected to MongoDB Atlas successfully!'))
   .catch((err) => console.error('❌ Database connection error:', err));
+
+const db = mongoose.connection;
+db.on('connected', () => console.log('ℹ️ Mongoose connected to MongoDB'));
+db.on('error', (err) => console.error('❌ Mongoose connection error:', err));
+db.on('disconnected', () => console.warn('⚠️ Mongoose disconnected'));
+db.on('reconnected', () => console.log('🔁 Mongoose reconnected'));
 
 // Routes
 app.use('/api/auth', authRoutes);
